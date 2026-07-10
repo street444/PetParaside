@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Pet Paradise — Погладь усіх!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ ЕКРАН ЗАВАНТАЖЕННЯ ============ -->
+<div id="loading-screen">
+  <div class="loading-paw">🐾</div>
+  <h1 class="loading-title">Pet Paradise</h1>
+  <div class="loading-bar-track"><div class="loading-bar-fill" id="loadingFill"></div></div>
+  <p class="loading-hint" id="loadingHint">Готуємо мискy з водою…</p>
+</div>
+
+<!-- ============ ГОЛОВНИЙ КОНТЕЙНЕР ГРИ ============ -->
+<div id="game-root" class="hidden">
+
+  <!-- Плаваючі частинки (сердечка/блискітки) додаються сюди через JS -->
+  <div id="particle-layer" aria-hidden="true"></div>
+
+  <!-- ================= ВЕРХНЯ ПАНЕЛЬ (HUD) ================= -->
+  <header class="hud">
+    <div class="hud-left">
+      <button class="icon-btn" id="btnMenuMobile" title="Меню" aria-label="Відкрити меню">☰</button>
+      <div class="hud-stat level-stat">
+        <div class="level-badge" id="levelBadge">1</div>
+        <div class="xp-wrap">
+          <div class="xp-label"><span id="titleLabel">Новачок</span></div>
+          <div class="xp-bar-track">
+            <div class="xp-bar-fill" id="xpFill"></div>
+          </div>
+          <div class="xp-text" id="xpText">0 / 50 XP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <div class="hud-stat coin-stat" id="coinStat">
+        <span class="hud-icon">🪙</span>
+        <span class="hud-value" id="coinValue">0</span>
+      </div>
+      <div class="hud-stat gem-stat" id="gemStat">
+        <span class="hud-icon">💎</span>
+        <span class="hud-value" id="gemValue">0</span>
+      </div>
+      <div class="hud-stat love-stat" id="loveStat">
+        <span class="hud-icon">❤️</span>
+        <span class="hud-value" id="loveValue">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="game-body">
+
+    <!-- ================= ЛІВА ПАНЕЛЬ ================= -->
+    <nav class="side-panel side-left" id="sideLeft">
+      <button class="side-btn" data-panel="shop">
+        <span class="side-icon">🛒</span><span class="side-text">Магазин</span>
+      </button>
+      <button class="side-btn" data-panel="achievements">
+        <span class="side-icon">🏆</span><span class="side-text">Досягнення</span>
+        <span class="side-badge" id="achBadge" hidden>0</span>
+      </button>
+      <button class="side-btn" data-panel="collection">
+        <span class="side-icon">📖</span><span class="side-text">Колекція</span>
+      </button>
+      <button class="side-btn" data-panel="quests">
+        <span class="side-icon">📋</span><span class="side-text">Завдання</span>
+        <span class="side-badge" id="questBadge" hidden>0</span>
+      </button>
+      <button class="side-btn" data-panel="wheel">
+        <span class="side-icon">🎡</span><span class="side-text">Колесо удачі</span>
+      </button>
+      <button class="side-btn" data-panel="daily" id="dailyBtn">
+        <span class="side-icon">🎁</span><span class="side-text">Щоденний бонус</span>
+        <span class="side-dot" id="dailyDot" hidden></span>
+      </button>
+    </nav>
+
+    <!-- ================= ЦЕНТРАЛЬНА ІГРОВА ЗОНА ================= -->
+    <main class="stage-wrap">
+
+      <!-- Вибір локації -->
+      <div class="location-bar" id="locationBar"></div>
+
+      <!-- Ігрова сцена -->
+      <div class="stage" id="stage">
+        <div class="stage-bg" id="stageBg"></div>
+        <div class="stage-floor"></div>
+
+        <div class="pet-stand" id="petStand">
+          <div class="pet-shadow"></div>
+          <button class="pet-btn" id="petBtn" aria-label="Погладити тваринку">
+            <span class="pet-emoji" id="petEmoji">🐶</span>
+            <span class="pet-rarity-ring" id="petRarityRing"></span>
+          </button>
+          <div class="pet-name-tag" id="petNameTag">Дружок</div>
+        </div>
+
+        <!-- Кнопка зміни тваринки -->
+        <button class="switch-pet-btn" id="switchPetBtn" title="Наступна тваринка">🔀</button>
+
+        <!-- Плаваючий текст +монети/+XP -->
+        <div class="float-text-layer" id="floatLayer"></div>
+      </div>
+
+      <!-- Панель швидких покращень під сценою -->
+      <div class="quick-stats">
+        <div class="quick-chip"><span>💰</span><span id="quickCoinsPerPet">+1</span></div>
+        <div class="quick-chip"><span>✨</span><span id="quickXpPerPet">+1</span></div>
+        <div class="quick-chip"><span>🤖</span><span id="quickAutoRate">Вимкнено</span></div>
+      </div>
+    </main>
+
+    <!-- ================= ПРАВА ПАНЕЛЬ ================= -->
+    <aside class="side-panel side-right" id="sideRight">
+      <div class="right-title">Налаштування</div>
+      <label class="toggle-row">
+        <span>🔊 Звук</span>
+        <input type="checkbox" id="toggleSfx" checked />
+        <span class="toggle-ui"></span>
+      </label>
+      <label class="toggle-row">
+        <span>🎵 Музика</span>
+        <input type="checkbox" id="toggleMusic" checked />
+        <span class="toggle-ui"></span>
+      </label>
+      <label class="toggle-row">
+        <span>💥 Частинки</span>
+        <input type="checkbox" id="toggleParticles" checked />
+        <span class="toggle-ui"></span>
+      </label>
+      <div class="volume-row">
+        <span>🔈</span>
+        <input type="range" id="volumeSlider" min="0" max="100" value="60" />
+      </div>
+      <button class="side-btn small" data-panel="stats">
+        <span class="side-icon">📊</span><span class="side-text">Статистика</span>
+      </button>
+      <button class="ghost-btn danger" id="resetBtn">Скинути прогрес</button>
+      <div class="right-footer">Pet Paradise · v1.0</div>
+    </aside>
+  </div>
+</div>
+
+<!-- ============ УНІВЕРСАЛЬНЕ МОДАЛЬНЕ ВІКНО ============ -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal-panel" id="modalPanel" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="Закрити">✕</button>
+    <div class="modal-content" id="modalContent"><!-- рендериться через JS --></div>
+  </div>
+</div>
+
+<!-- ============ TOAST-СПОВІЩЕННЯ (досягнення, рівень, бонуси) ============ -->
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ============ МОБІЛЬНЕ НИЖНЄ МЕНЮ ============ -->
+<nav class="mobile-tabbar" id="mobileTabbar">
+  <button class="tab-btn" data-panel="shop"><span>🛒</span></button>
+  <button class="tab-btn" data-panel="collection"><span>📖</span></button>
+  <button class="tab-btn active" data-panel="stage-focus"><span>🐾</span></button>
+  <button class="tab-btn" data-panel="quests"><span>📋</span></button>
+  <button class="tab-btn" data-panel="achievements"><span>🏆</span></button>
+</nav>
+
+<script src="script.js"></script>
+</body>
+</html>
